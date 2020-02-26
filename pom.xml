@@ -11,17 +11,24 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <manywho.sdk.version>2.0.0-beta-11</manywho.sdk.version>
+        <manywho.sdk.version>2251b5988ccc4982a224606a712677e4a98ad45e</manywho.sdk.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>com.manywho.sdk</groupId>
+            <groupId>com.github.manywho.sdk-java</groupId>
             <artifactId>sdk-server-servlet3</artifactId>
             <version>${manywho.sdk.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.manywho.sdk</groupId>
+            <groupId>com.github.manywho.sdk-java</groupId>
             <artifactId>sdk-server-undertow</artifactId>
             <version>${manywho.sdk.version}</version>
         </dependency>
