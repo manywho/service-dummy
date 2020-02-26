@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <manywho.sdk.version>2.0.0-beta-09</manywho.sdk.version>
+        <manywho.sdk.version>2.0.0-beta-11</manywho.sdk.version>
     </properties>
 
     <dependencies>
@@ -23,6 +23,11 @@
         <dependency>
             <groupId>com.manywho.sdk</groupId>
             <artifactId>sdk-server-undertow</artifactId>
+            <version>${manywho.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.manywho.sdk</groupId>
+            <artifactId>sdk-client</artifactId>
             <version>${manywho.sdk.version}</version>
         </dependency>
 

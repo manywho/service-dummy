@@ -7,7 +7,6 @@ import com.manywho.sdk.api.run.elements.config.SocialServiceRequest;
 import com.manywho.sdk.api.social.MentionedWho;
 import com.manywho.sdk.api.social.MessageList;
 import com.manywho.sdk.api.social.Who;
-import com.manywho.sdk.services.validation.social.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -22,19 +21,19 @@ public class SocialController {
 
     @Path("/stream")
     @POST
-    public TextNode createStream(@CreateStream SocialServiceRequest serviceRequest) {
+    public TextNode createStream(SocialServiceRequest serviceRequest) {
         return new TextNode(UUID.randomUUID().toString());
     }
 
     @Path("/stream/{id}")
     @POST
-    public MessageList getStreamMessages(@GetStreamMessages SocialServiceRequest serviceRequest, @PathParam("id") UUID streamId) {
+    public MessageList getStreamMessages(SocialServiceRequest serviceRequest, @PathParam("id") UUID streamId) {
         return new MessageList();
     }
 
     @Path("/stream/{id}/follower")
     @POST
-    public List<Who> getStreamFollowers(@GetStreamFollowers SocialServiceRequest serviceRequest, @PathParam("id") UUID streamId) {
+    public List<Who> getStreamFollowers(SocialServiceRequest serviceRequest, @PathParam("id") UUID streamId) {
         return new ArrayList<>();
     }
 
@@ -57,13 +56,13 @@ public class SocialController {
 
     @Path("/stream/{id}/user/me")
     @POST
-    public Who getCurrentUser(@GetCurrentUser SocialServiceRequest serviceRequest, @PathParam("id") UUID streamId) {
+    public Who getCurrentUser(SocialServiceRequest serviceRequest, @PathParam("id") UUID streamId) {
         return createWho();
     }
 
     @Path("/stream/{id}/user/name/{name}")
     @POST
-    public List<MentionedWho> searchUsersByName(@SearchUsersByName SocialServiceRequest serviceRequest,
+    public List<MentionedWho> searchUsersByName(SocialServiceRequest serviceRequest,
                                                 @PathParam("id") UUID streamId,
                                                 @PathParam("name") String name) {
         if (Strings.isNullOrEmpty(name)) {
