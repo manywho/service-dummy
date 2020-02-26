@@ -33,7 +33,7 @@
             <version>${manywho.sdk.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.manywho.sdk</groupId>
+            <groupId>com.github.manywho.sdk-java</groupId>
             <artifactId>sdk-client</artifactId>
             <version>${manywho.sdk.version}</version>
         </dependency>
