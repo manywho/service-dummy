@@ -79,7 +79,7 @@ public class DummyWaitActionCommand implements ActionCommand<ApplicationConfigur
 
             // If we've reached our time limit, send a FORWARD to the flow with the output populated with the final message
             if (iteration == input.getNumberOfSeconds()) {
-                LOGGER.info("Sending a FORWARD to the flow");
+                LOGGER.info("Sending a FORWARD to the flow after {} seconds", iteration);
 
                 EngineValue output = valueBuilder.from("Message", ContentType.String, "The message finished");
 
@@ -87,12 +87,14 @@ public class DummyWaitActionCommand implements ActionCommand<ApplicationConfigur
                 return;
             }
 
-            LOGGER.info("Sending a WAIT to the flow");
+            if (input.sendUpdatesEverySecond() == null || input.sendUpdatesEverySecond()) {
+                LOGGER.info("Sending a WAIT to the flow after {} out of {} seconds", iteration, input.getNumberOfSeconds());
 
-            // Otherwise, send a wait message to the Engine with an output
-            EngineValue output = valueBuilder.from("Message", ContentType.String, String.format("The message is on #%d", iteration));
+                // Otherwise, send a wait message to the Engine with an output
+                EngineValue output = valueBuilder.from("Message", ContentType.String, String.format("The message is on #%d", iteration));
 
-            sendCallback(new ServiceResponse(serviceRequest.getTenantId(), InvokeType.Wait, output, serviceRequest.getToken(), String.format("This is second #%d", iteration)));
+                sendCallback(new ServiceResponse(serviceRequest.getTenantId(), InvokeType.Wait, output, serviceRequest.getToken(), String.format("This is second #%d", iteration)));
+            }
         }
 
         void sendCallback(ServiceResponse serviceResponse) {
