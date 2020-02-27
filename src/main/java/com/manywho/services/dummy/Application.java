@@ -18,6 +18,20 @@ public class Application extends Servlet3Server {
         EmbeddedServer server = new UndertowServer();
         server.addModule(new ApplicationModule());
         server.setApplication(Application.class);
-        server.start("api/dummy/1");
+        
+        Boolean useV2 = args.length > 0 && args[0].equalsIgnoreCase("true");
+
+        if(useV2){
+            server.start(
+                "api/dummy/2", 
+                8081, 
+                ClassLoader.getSystemClassLoader().getResourceAsStream("server_keystore.jks"), 
+                ClassLoader.getSystemClassLoader().getResourceAsStream("server_truststore.jks"), 
+                "secret", 
+                "secret");
+        }
+        else{
+            server.start("api/dummy/1");
+        }
     }
 }
