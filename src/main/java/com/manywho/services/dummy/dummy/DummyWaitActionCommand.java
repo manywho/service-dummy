@@ -14,12 +14,15 @@ import com.manywho.sdk.services.values.ValueBuilder;
 import com.manywho.services.dummy.ApplicationConfiguration;
 import com.manywho.services.dummy.dummy.DummyWaitAction.Input;
 import com.manywho.services.dummy.dummy.DummyWaitAction.Output;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Response;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -79,7 +82,7 @@ public class DummyWaitActionCommand implements ActionCommand<ApplicationConfigur
 
             // If we've reached our time limit, send a FORWARD to the flow with the output populated with the final message
             if (iteration == input.getNumberOfSeconds()) {
-                LOGGER.info("Sending a FORWARD to the flow");
+                LOGGER.info("Sending a FORWARD to the flow after {} seconds", iteration);
 
                 EngineValue output = valueBuilder.from("Message", ContentType.String, "The message finished");
 
@@ -87,38 +90,58 @@ public class DummyWaitActionCommand implements ActionCommand<ApplicationConfigur
                 return;
             }
 
-            LOGGER.info("Sending a WAIT to the flow");
+            if (input.sendUpdatesEverySecond() == null || input.sendUpdatesEverySecond()) {
+                LOGGER.info("Sending a WAIT to the flow after {} out of {} seconds", iteration, input.getNumberOfSeconds());
 
-            // Otherwise, send a wait message to the Engine with an output
-            EngineValue output = valueBuilder.from("Message", ContentType.String, String.format("The message is on #%d", iteration));
+                // Otherwise, send a wait message to the Engine with an output
+                EngineValue output = valueBuilder.from("Message", ContentType.String, String.format("The message is on #%d", iteration));
 
-            sendCallback(new ServiceResponse(serviceRequest.getTenantId(), InvokeType.Wait, output, serviceRequest.getToken(), String.format("This is second #%d", iteration)));
+                sendCallback(new ServiceResponse(serviceRequest.getTenantId(), InvokeType.Wait, output, serviceRequest.getToken(), String.format("This is second #%d", iteration)));
+            }
         }
 
         void sendCallback(ServiceResponse serviceResponse) {
-            LOGGER.info("Sending callback to {}", serviceRequest.getCallbackUri());
-
             String authorization = authorizationEncoder.encode(user);
 
-            Response<InvokeType> response;
-            try {
-                response = runClient.callback(authorization, serviceRequest.getTenantId(), serviceRequest.getCallbackUri(), serviceResponse)
-                        .execute();
-            } catch (IOException e) {
-                LOGGER.error("Something went wrong sending the callback", e);
+            RetryPolicy<InvokeType> retryPolicy = new RetryPolicy<InvokeType>()
+                    .handle(Exception.class)
+                    .withDelay(Duration.ofSeconds(1))
+                    .withMaxRetries(3);
 
-                throw new RuntimeException(e);
-            }
+            Failsafe.with(retryPolicy)
+                    .onFailure(event -> LOGGER.error("Something went wrong sending the callback to {}", serviceRequest.getCallbackUri(), event.getFailure()))
+                    .onSuccess(event -> LOGGER.info("Sent the callback to {} and received {}", serviceRequest.getCallbackUri(), event.getResult()))
+                    .get(() -> {
+                        Response<InvokeType> response;
+                        try {
+                            response = runClient.callback(authorization, serviceRequest.getTenantId(), serviceRequest.getCallbackUri(), serviceResponse)
+                                    .execute();
+                        } catch (IOException e) {
+                            LOGGER.error("Something went wrong sending the callback", e);
 
-            if (response.isSuccessful() == false) {
-                try {
-                    LOGGER.error("The callback was not successful: {}", response.errorBody().string());
-                } catch (IOException e) {
-                    LOGGER.error("Unable to convert the error response to a string", e);
+                            throw new RuntimeException(e);
+                        }
 
-                    throw new RuntimeException(e);
-                }
-            }
+                        boolean acceptableInvokeType =
+                                response.body().equals(InvokeType.Success) ||
+                                response.body().equals(InvokeType.Wait);
+
+                        if (response.isSuccessful() && !acceptableInvokeType) {
+                            throw new RuntimeException("Flow did not accept the callback and sent back: " + response.body().toString());
+                        }
+
+                        if (response.isSuccessful() == false) {
+                            try {
+                                LOGGER.error("The callback was not successful: {}", response.errorBody().string());
+                            } catch (Exception e) {
+                                LOGGER.error("Unable to convert the error response to a string", e);
+
+                                throw new RuntimeException(e);
+                            }
+                        }
+
+                        return response.body();
+                    });
         }
     }
 }
