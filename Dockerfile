@@ -16,4 +16,4 @@ EXPOSE 8081
 
 COPY --from=build /usr/src/app/target/service-dummy.jar /usr/src/app/target/service-dummy.jar
 
-CMD ["java", "-Xmx300m", "-jar", "/usr/src/app/target/service-dummy.jar", ${V2}]
+CMD ["java", "-Xmx300m", "-jar", "/usr/src/app/target/service-dummy.jar" ${V2}]
