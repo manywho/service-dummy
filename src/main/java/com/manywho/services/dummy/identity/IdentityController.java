@@ -18,7 +18,6 @@ import com.manywho.sdk.services.types.system.$User;
 import com.manywho.sdk.services.types.system.AuthorizationAttribute;
 import com.manywho.sdk.services.types.system.AuthorizationGroup;
 import com.manywho.sdk.services.types.system.AuthorizationUser;
-import org.apache.commons.collections.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -210,7 +209,7 @@ public class IdentityController extends AbstractIdentityController {
                 if (!user.getUserId().equalsIgnoreCase("PUBLIC_USER")) {
                     String userId = user.getUserId();
 
-                    if (CollectionUtils.isNotEmpty(authorization.getUsers())) {
+                    if (authorization.hasUsers()) {
                         for (User allowedUser:authorization.getUsers()) {
                             if (allowedUser.getAttribute().equalsIgnoreCase("accountId")
                                     && Objects.equals(allowedUser.getAuthenticationId(), userId)) {
@@ -220,7 +219,7 @@ public class IdentityController extends AbstractIdentityController {
                         }
                     }
 
-                    if (CollectionUtils.isNotEmpty(authorization.getGroups())) {
+                    if (authorization.hasGroups()) {
                         List<AuthorizationGroup> groups = new ArrayList<>();
 
                         if (user.getUserId().equals("user1")) {

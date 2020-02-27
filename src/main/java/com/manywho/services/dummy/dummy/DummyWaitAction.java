@@ -9,8 +9,15 @@ public class DummyWaitAction implements Action {
         @Action.Input(name = "Number of Seconds", contentType = ContentType.Number)
         private int numberOfSeconds;
 
+        @Action.Input(name = "Send Updates Every Second?", contentType = ContentType.Boolean)
+        private Boolean sendUpdatesEverySecond;
+
         public int getNumberOfSeconds() {
             return numberOfSeconds;
+        }
+
+        public Boolean sendUpdatesEverySecond() {
+            return sendUpdatesEverySecond;
         }
     }
 

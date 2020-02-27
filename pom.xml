@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <manywho.sdk.version>e624e4584032bf0cc1cb1433aa7e2ff969ac0065</manywho.sdk.version>
+        <manywho.sdk.version>2251b5988ccc4982a224606a712677e4a98ad45e</manywho.sdk.version>
     </properties>
 
     <repositories>
@@ -23,14 +23,24 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.manywho.sdk</groupId>
+            <groupId>com.github.manywho.sdk-java</groupId>
             <artifactId>sdk-server-servlet3</artifactId>
             <version>${manywho.sdk.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.manywho.sdk</groupId>
+            <groupId>com.github.manywho.sdk-java</groupId>
             <artifactId>sdk-server-undertow</artifactId>
             <version>${manywho.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.manywho.sdk-java</groupId>
+            <artifactId>sdk-client</artifactId>
+            <version>${manywho.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>2.3.3</version>
         </dependency>
 
         <!-- Logging -->
