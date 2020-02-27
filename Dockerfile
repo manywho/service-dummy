@@ -1,5 +1,3 @@
-ARG V2=false
-
 FROM maven:alpine AS build
 
 WORKDIR /usr/src/app
@@ -10,6 +8,8 @@ COPY pom.xml pom.xml
 RUN mvn clean package
 
 FROM openjdk:jre-alpine
+
+ENV V2=false
 
 EXPOSE 8080
 EXPOSE 8081
