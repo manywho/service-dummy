@@ -14,12 +14,15 @@ import com.manywho.sdk.services.values.ValueBuilder;
 import com.manywho.services.dummy.ApplicationConfiguration;
 import com.manywho.services.dummy.dummy.DummyWaitAction.Input;
 import com.manywho.services.dummy.dummy.DummyWaitAction.Output;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Response;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -98,29 +101,47 @@ public class DummyWaitActionCommand implements ActionCommand<ApplicationConfigur
         }
 
         void sendCallback(ServiceResponse serviceResponse) {
-            LOGGER.info("Sending callback to {}", serviceRequest.getCallbackUri());
-
             String authorization = authorizationEncoder.encode(user);
 
-            Response<InvokeType> response;
-            try {
-                response = runClient.callback(authorization, serviceRequest.getTenantId(), serviceRequest.getCallbackUri(), serviceResponse)
-                        .execute();
-            } catch (IOException e) {
-                LOGGER.error("Something went wrong sending the callback", e);
+            RetryPolicy<InvokeType> retryPolicy = new RetryPolicy<InvokeType>()
+                    .handle(Exception.class)
+                    .withDelay(Duration.ofSeconds(1))
+                    .withMaxRetries(3);
 
-                throw new RuntimeException(e);
-            }
+            Failsafe.with(retryPolicy)
+                    .onFailure(event -> LOGGER.error("Something went wrong sending the callback to {}", serviceRequest.getCallbackUri(), event.getFailure()))
+                    .onSuccess(event -> LOGGER.info("Sent the callback to {} and received {}", serviceRequest.getCallbackUri(), event.getResult()))
+                    .get(() -> {
+                        Response<InvokeType> response;
+                        try {
+                            response = runClient.callback(authorization, serviceRequest.getTenantId(), serviceRequest.getCallbackUri(), serviceResponse)
+                                    .execute();
+                        } catch (IOException e) {
+                            LOGGER.error("Something went wrong sending the callback", e);
 
-            if (response.isSuccessful() == false) {
-                try {
-                    LOGGER.error("The callback was not successful: {}", response.errorBody().string());
-                } catch (IOException e) {
-                    LOGGER.error("Unable to convert the error response to a string", e);
+                            throw new RuntimeException(e);
+                        }
 
-                    throw new RuntimeException(e);
-                }
-            }
+                        boolean acceptableInvokeType =
+                                response.body().equals(InvokeType.Success) ||
+                                response.body().equals(InvokeType.Wait);
+
+                        if (response.isSuccessful() && !acceptableInvokeType) {
+                            throw new RuntimeException("Flow did not accept the callback and sent back: " + response.body().toString());
+                        }
+
+                        if (response.isSuccessful() == false) {
+                            try {
+                                LOGGER.error("The callback was not successful: {}", response.errorBody().string());
+                            } catch (Exception e) {
+                                LOGGER.error("Unable to convert the error response to a string", e);
+
+                                throw new RuntimeException(e);
+                            }
+                        }
+
+                        return response.body();
+                    });
         }
     }
 }
