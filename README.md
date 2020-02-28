@@ -15,6 +15,12 @@ The service is compatible with Heroku, and can be deployed by clicking the butto
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/manywho/service-dummy/tree/develop)
 
+If executed without any arguments, the service starts in V1 mode over http. To start in V2 mode with https client authentication, supply the following arguments;
+
+`service-dummy.jar true /path/to/server_keystore.jks /path/to/server_truststore.jks` 
+
+Some basic self-signed certs are packaged in `src/main/resources`. If starting the service with these, the `client_keystore.jks` will need to be passed by calling clients to authenticate.
+
 ## Contributing
 
 Contributions are welcome to the project - whether they are feature requests, improvements or bug fixes! Refer to 
