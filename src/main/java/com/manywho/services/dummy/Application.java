@@ -1,10 +1,10 @@
 package com.manywho.services.dummy;
 
+import javax.ws.rs.ApplicationPath;
+
 import com.manywho.sdk.services.servers.EmbeddedServer;
 import com.manywho.sdk.services.servers.Servlet3Server;
 import com.manywho.sdk.services.servers.undertow.UndertowServer;
-
-import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("/")
 public class Application extends Servlet3Server {
@@ -25,8 +25,8 @@ public class Application extends Servlet3Server {
             server.start(
                 "api/dummy/2", 
                 8081, 
-                ClassLoader.getSystemClassLoader().getResourceAsStream("server_keystore.jks"), 
-                ClassLoader.getSystemClassLoader().getResourceAsStream("server_truststore.jks"), 
+                Application.class.getResourceAsStream("server_keystore.jks"), 
+                Application.class.getResourceAsStream("server_truststore.jks"), 
                 "secret", 
                 "secret");
         }
