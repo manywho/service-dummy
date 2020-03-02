@@ -24,15 +24,17 @@ public class Application extends Servlet3Server {
         String V2 = System.getenv("DUMMY_V2");
         String keystore = System.getenv("DUMMY_KEYSTORE");
         String truststore = System.getenv("DUMMY_TRUSTSTORE");
+        String keystorePassword = System.getenv("DUMMY_KEYSTORE_PASSWORD");
+        String truststorePassword = System.getenv("DUMMY_TRUSTSTORE_PASSWORD");
 
-        if(V2.equalsIgnoreCase("true")){          
+        if(V2 != null && V2.equalsIgnoreCase("true")) {          
             server.start(
                 "api/dummy/2", 
                 8081, 
-                new FileInputStream(keystore), 
+                keystore != null && !keystore.isEmpty() ? new FileInputStream(keystore) : null, 
                 truststore != null && !truststore.isEmpty() ? new FileInputStream(truststore) : null, 
-                "secret", 
-                "secret");
+                keystorePassword, 
+                truststorePassword);
         }
         else{
             server.start("api/dummy/1");
