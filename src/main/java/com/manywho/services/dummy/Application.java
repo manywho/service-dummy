@@ -21,14 +21,16 @@ public class Application extends Servlet3Server {
         server.addModule(new ApplicationModule());
         server.setApplication(Application.class);
         
-        Boolean useV2 = args.length >= 3 && args[0].equalsIgnoreCase("true");
+        String V2 = System.getenv("DUMMY_V2");
+        String keystore = System.getenv("DUMMY_KEYSTORE");
+        String truststore = System.getenv("DUMMY_TRUSTSTORE");
 
-        if(useV2){
+        if(V2.equalsIgnoreCase("true")){          
             server.start(
                 "api/dummy/2", 
                 8081, 
-                new FileInputStream(args[1]), 
-                new FileInputStream(args[2]), 
+                new FileInputStream(keystore), 
+                truststore != null && !truststore.isEmpty() ? new FileInputStream(truststore) : null, 
                 "secret", 
                 "secret");
         }
