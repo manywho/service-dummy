@@ -1,5 +1,8 @@
 package com.manywho.services.dummy.identity;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.manywho.sdk.api.AuthorizationType;
 import com.manywho.sdk.api.run.elements.config.Authorization;
@@ -27,8 +30,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -84,6 +89,22 @@ public class IdentityController extends AbstractIdentityController {
 
         $User userObject;
         URI host = baseUri(httpHeaders.getHeaderString("X-Forwarded-Proto"));
+
+        String token = httpHeaders.getHeaderString("Authorization");
+        String decodedToken = URLDecoder.decode(token, "UTF-8");;
+
+        Map<Object, Object> parameters = Splitter.on(
+                "&")
+                .withKeyValueSeparator("=")
+                .split(decodedToken)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        entry -> CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, entry.getKey()),
+                        entry -> entry.getValue()
+                ));
+
+        authenticatedWho = new ObjectMapper().convertValue(parameters, AuthenticatedWho.class);
 
         String status = getUserAuthorizationStatus(objectDataRequest.getAuthorization(), authenticatedWho);
 
