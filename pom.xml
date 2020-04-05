@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <manywho.sdk.version>bf6ffcb4b348aa68710dfa86eb37fb62b8afe343</manywho.sdk.version>
+        <manywho.sdk.version>7eb0fccc97cda56fc4a92bef28c804d500e450f6</manywho.sdk.version>
     </properties>
 
     <repositories>
