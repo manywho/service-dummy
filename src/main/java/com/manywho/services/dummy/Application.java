@@ -20,24 +20,24 @@ public class Application extends Servlet3Server {
         EmbeddedServer server = new UndertowServer();
         server.addModule(new ApplicationModule());
         server.setApplication(Application.class);
-        
+
         String V2 = System.getenv("DUMMY_V2");
         String keystore = System.getenv("DUMMY_KEYSTORE");
         String truststore = System.getenv("DUMMY_TRUSTSTORE");
         String keystorePassword = System.getenv("DUMMY_KEYSTORE_PASSWORD");
         String truststorePassword = System.getenv("DUMMY_TRUSTSTORE_PASSWORD");
 
-        if(V2 != null && V2.equalsIgnoreCase("true")) {          
+        if(V2 != null && V2.equalsIgnoreCase("true")) {
             server.start(
-                "api/dummy/2", 
-                8081, 
-                keystore != null && !keystore.isEmpty() ? new FileInputStream(keystore) : null, 
-                truststore != null && !truststore.isEmpty() ? new FileInputStream(truststore) : null, 
-                keystorePassword, 
+                "",
+                8081,
+                keystore != null && !keystore.isEmpty() ? new FileInputStream(keystore) : null,
+                truststore != null && !truststore.isEmpty() ? new FileInputStream(truststore) : null,
+                keystorePassword,
                 truststorePassword);
         }
         else{
-            server.start("api/dummy/1");
+            server.start();
         }
     }
 }
