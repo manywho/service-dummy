@@ -12,12 +12,14 @@ import com.manywho.sdk.api.run.elements.type.Property;
 import com.manywho.sdk.api.security.AuthenticatedWho;
 import com.manywho.sdk.api.security.AuthenticatedWhoResult;
 import com.manywho.sdk.api.security.AuthenticationCredentials;
+import com.manywho.sdk.services.configuration.ConfigurationParser;
 import com.manywho.sdk.services.controllers.AbstractIdentityController;
 import com.manywho.sdk.services.types.TypeBuilder;
 import com.manywho.sdk.services.types.system.$User;
 import com.manywho.sdk.services.types.system.AuthorizationAttribute;
 import com.manywho.sdk.services.types.system.AuthorizationGroup;
 import com.manywho.sdk.services.types.system.AuthorizationUser;
+import com.manywho.services.dummy.ApplicationConfiguration;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -41,6 +43,7 @@ public class IdentityController extends AbstractIdentityController {
     private final static Integer GROUPS_IN_DIRECTORY = 53;
 
     private final Provider<AuthenticatedWho> authenticatedWhoProvider;
+    private final ConfigurationParser configurationParser;
     private final TypeBuilder typeBuilder;
 
     @Context
@@ -50,8 +53,9 @@ public class IdentityController extends AbstractIdentityController {
     private UriInfo uriInfo;
 
     @Inject
-    public IdentityController(Provider<AuthenticatedWho> authenticatedWhoProvider, TypeBuilder typeBuilder) {
+    public IdentityController(Provider<AuthenticatedWho> authenticatedWhoProvider, ConfigurationParser applicationConfigurationProvider, TypeBuilder typeBuilder) {
         this.authenticatedWhoProvider = authenticatedWhoProvider;
+        this.configurationParser = applicationConfigurationProvider;
         this.typeBuilder = typeBuilder;
     }
 
@@ -60,6 +64,11 @@ public class IdentityController extends AbstractIdentityController {
     @Override
     public AuthenticatedWhoResult authentication(AuthenticationCredentials authenticationCredentials) throws Exception {
         AuthenticatedWhoResult authenticatedWhoResult = new AuthenticatedWhoResult();
+        ApplicationConfiguration configuration = configurationParser.from(authenticationCredentials);
+        if ("SAML".equalsIgnoreCase(configuration.getAuthorizationType()) &&
+                "123456".equals(authenticationCredentials.getCode()) == false) {
+            throw new RuntimeException("SAML assertion not valid");
+        }
 
         authenticatedWhoResult.setDirectoryId( "Dummy Directory");
         authenticatedWhoResult.setDirectoryName( "Dummy Directory");
@@ -76,6 +85,16 @@ public class IdentityController extends AbstractIdentityController {
         return authenticatedWhoResult;
     }
 
+    private AuthorizationType getAuthorizationType(ApplicationConfiguration configuration) {
+        if ("SAML".equalsIgnoreCase(configuration.getAuthorizationType())) {
+            return AuthorizationType.SAML;
+        } else if ("OAUTH".equalsIgnoreCase(configuration.getAuthorizationType())) {
+            return AuthorizationType.Oauth;
+        }
+
+        return AuthorizationType.Oauth2;
+    }
+
     @Path("/authorization")
     @POST
     @Override
@@ -84,22 +103,31 @@ public class IdentityController extends AbstractIdentityController {
 
         $User userObject;
         URI host = baseUri(httpHeaders.getHeaderString("X-Forwarded-Proto"));
+        ApplicationConfiguration configuration = configurationParser.from(objectDataRequest);
 
         String status = getUserAuthorizationStatus(objectDataRequest.getAuthorization(), authenticatedWho);
 
         if (status.equals("401")) {
+            // this url is for oauth2 and SAML authentication
+            String url = host + "callback/fake-idp?";
+
+            // this url is for oauth1.0 authenitcaiton
+            if (getAuthorizationType(configuration) == AuthorizationType.Oauth) {
+                url = host + "callback/fake-idp?oauth_token=1234";
+            }
+
             userObject = new $User();
             userObject.setDirectoryId("UNKNOWN");
             userObject.setDirectoryName("UNKNOWN");
-            userObject.setAuthenticationType(AuthorizationType.Oauth2);
-            userObject.setLoginUrl(host + "callback/fake-idp?");
+            userObject.setAuthenticationType(getAuthorizationType(configuration));
+            userObject.setLoginUrl(url);
             userObject.setStatus("401");
             userObject.setUserId(UUID.randomUUID().toString());
         } else {
             userObject = new $User();
             userObject.setDirectoryId("Dummy Directory");
             userObject.setDirectoryName("Dummy Directory");
-            userObject.setAuthenticationType(AuthorizationType.Oauth2);
+            userObject.setAuthenticationType(getAuthorizationType(configuration));
             userObject.setLoginUrl("");
             userObject.setPrimaryGroupId("7");
             userObject.setPrimaryGroupName("S Club 7");
