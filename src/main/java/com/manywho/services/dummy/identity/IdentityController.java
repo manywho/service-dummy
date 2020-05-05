@@ -65,9 +65,25 @@ public class IdentityController extends AbstractIdentityController {
     public AuthenticatedWhoResult authentication(AuthenticationCredentials authenticationCredentials) throws Exception {
         AuthenticatedWhoResult authenticatedWhoResult = new AuthenticatedWhoResult();
         ApplicationConfiguration configuration = configurationParser.from(authenticationCredentials);
-        if ("SAML".equalsIgnoreCase(configuration.getAuthorizationType()) &&
+
+        if(authenticationCredentials.getSessionToken()!= null &&
+                authenticationCredentials.getSessionToken().equals("12345")) {
+            authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.Authenticated);
+        } else if(authenticationCredentials.getSessionToken()!= null &&
+                authenticationCredentials.getSessionToken().equals("12345") == false) {
+            authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.AccessDenied);
+
+            return authenticatedWhoResult;
+        } else if ("SAML".equalsIgnoreCase(configuration.getAuthorizationType()) &&
                 "123456".equals(authenticationCredentials.getCode()) == false) {
             throw new RuntimeException("SAML assertion not valid");
+        } else if ("USERNAME_PASSWORD".equalsIgnoreCase(configuration.getAuthorizationType()) &&
+                ("user1@example.com".equals(authenticationCredentials.getUsername()) == false
+                || "pass".equals(authenticationCredentials.getPassword()) == false)) {
+
+            authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.AccessDenied);
+
+            return authenticatedWhoResult;
         }
 
         authenticatedWhoResult.setDirectoryId( "Dummy Directory");
@@ -79,7 +95,7 @@ public class IdentityController extends AbstractIdentityController {
         authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.Authenticated);
         authenticatedWhoResult.setTenantName("Tenant 1");
         authenticatedWhoResult.setToken("user1token");
-        authenticatedWhoResult.setUserId( "user1");
+        authenticatedWhoResult.setUserId( UUID.randomUUID().toString());
         authenticatedWhoResult.setUsername("user1");
 
         return authenticatedWhoResult;
@@ -90,11 +106,39 @@ public class IdentityController extends AbstractIdentityController {
             return AuthorizationType.SAML;
         } else if ("OAUTH".equalsIgnoreCase(configuration.getAuthorizationType())) {
             return AuthorizationType.Oauth;
+        } else if ("USERNAME_PASSWORD".equalsIgnoreCase(configuration.getAuthorizationType())) {
+            return AuthorizationType.UsernamePassword;
         }
 
         return AuthorizationType.Oauth2;
     }
 
+    private String getFakeIdProviderUrl(ApplicationConfiguration configuration) {
+        URI host = baseUri(httpHeaders.getHeaderString("X-Forwarded-Proto"));
+        if (getAuthorizationType(configuration) == AuthorizationType.Oauth2) {
+            return host + "callback/fake-idp?";
+        }
+
+        if (getAuthorizationType(configuration) == AuthorizationType.Oauth) {
+            return host + "callback/fake-oauth1-idp?oauth_token=1234";
+        }
+
+        if (getAuthorizationType(configuration) == AuthorizationType.SAML) {
+            return host + "callback/fake-saml-idp?";
+        }
+
+        return "";
+    }
+
+    /**
+     * We allow authenticate using Oauth2, Oauth, SAML and username_password
+     *
+     * You can decide which to using the configuration value "Authorization Type"
+     *
+     * @param objectDataRequest
+     * @return
+     * @throws Exception
+     */
     @Path("/authorization")
     @POST
     @Override
@@ -102,25 +146,15 @@ public class IdentityController extends AbstractIdentityController {
         AuthenticatedWho authenticatedWho = authenticatedWhoProvider.get();
 
         $User userObject;
-        URI host = baseUri(httpHeaders.getHeaderString("X-Forwarded-Proto"));
         ApplicationConfiguration configuration = configurationParser.from(objectDataRequest);
-
         String status = getUserAuthorizationStatus(objectDataRequest.getAuthorization(), authenticatedWho);
 
         if (status.equals("401")) {
-            // this url is for oauth2 and SAML authentication
-            String url = host + "callback/fake-idp?";
-
-            // this url is for oauth1.0 authenitcaiton
-            if (getAuthorizationType(configuration) == AuthorizationType.Oauth) {
-                url = host + "callback/fake-idp?oauth_token=1234";
-            }
-
             userObject = new $User();
             userObject.setDirectoryId("UNKNOWN");
             userObject.setDirectoryName("UNKNOWN");
             userObject.setAuthenticationType(getAuthorizationType(configuration));
-            userObject.setLoginUrl(url);
+            userObject.setLoginUrl(getFakeIdProviderUrl(configuration));
             userObject.setStatus("401");
             userObject.setUserId(UUID.randomUUID().toString());
         } else {

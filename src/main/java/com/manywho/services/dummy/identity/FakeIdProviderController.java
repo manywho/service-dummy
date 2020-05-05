@@ -15,28 +15,40 @@ import java.nio.charset.StandardCharsets;
 public class FakeIdProviderController {
     @Path("/fake-idp")
     @GET
-    public Response fakeIdProvider(
+    public Response fakeOauth2IdProvider(
+            @QueryParam("state") String state,
+            @QueryParam("redirect_uri") String redirectUri
+    ) throws IOException {
+        String decodedRedirectUri = URLDecoder.decode(redirectUri, StandardCharsets.UTF_8.toString());
+        String url = String.format("%s?code=1234&state=%s&redirect_uri=%s", decodedRedirectUri, state, decodedRedirectUri);
+
+        return Response.seeOther(URI.create(url)).build();
+    }
+
+
+    @Path("/fake-oauth1-idp")
+    @GET
+    public Response fakeOauth1IdProvider(
             @QueryParam("state") String state,
             @QueryParam("redirect_uri") String redirectUri,
-            @QueryParam("oauth_token") String oauthToken,
+            @QueryParam("oauth_token") String oauthToken
+    ) throws IOException {
+        String decodedRedirectUri = URLDecoder.decode(redirectUri, StandardCharsets.UTF_8.toString());
+        String url = String.format("%s?oauth_token=%s&state=%s&redirect_uri=%s",
+                decodedRedirectUri, oauthToken, state, decodedRedirectUri);
+
+        return Response.seeOther(URI.create(url)).build();
+    }
+
+    @Path("/fake-saml-idp")
+    @GET
+    public Response fakeSamlIdProvider(
+            @QueryParam("redirect_uri") String redirectUri,
             @QueryParam("RelayState") String relayState
     ) throws IOException {
 
         String decodedRedirectUri = URLDecoder.decode(redirectUri, StandardCharsets.UTF_8.toString());
 
-        if (relayState == null || relayState.isEmpty()) {
-            // this url is for oauth 1.0
-            String url = String.format("%s?oauth_token=%s&state=%s&redirect_uri=%s", decodedRedirectUri, oauthToken, state, decodedRedirectUri);
-
-            //this url is for oauth2
-            if (oauthToken == null || oauthToken.isEmpty()) {
-                url = String.format("%s?code=1234&state=%s&redirect_uri=%s", decodedRedirectUri, state, decodedRedirectUri);
-            }
-
-            return Response.seeOther(URI.create(url)).build();
-        }
-
-        // those lines are for SAML
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MediaType.get("multipart/form-data"))
@@ -53,5 +65,17 @@ public class FakeIdProviderController {
         try (okhttp3.Response response = client.newCall(request).execute()) {
             return Response.seeOther(URI.create(response.request().url().toString())).build();
         }
+    }
+
+    @Path("/fake-session-idp")
+    @GET
+    public Response fakeSessionIdProvider(
+            @QueryParam("state") String state,
+            @QueryParam("redirect_uri") String redirectUri
+    ) throws IOException {
+        String decodedRedirectUri = URLDecoder.decode(redirectUri, StandardCharsets.UTF_8.toString());
+        String url = String.format("%s?code=1234&state=%s&redirect_uri=%s", decodedRedirectUri, state, decodedRedirectUri);
+
+        return Response.seeOther(URI.create(url)).build();
     }
 }
