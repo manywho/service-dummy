@@ -66,16 +66,4 @@ public class FakeIdProviderController {
             return Response.seeOther(URI.create(response.request().url().toString())).build();
         }
     }
-
-    @Path("/fake-session-idp")
-    @GET
-    public Response fakeSessionIdProvider(
-            @QueryParam("state") String state,
-            @QueryParam("redirect_uri") String redirectUri
-    ) throws IOException {
-        String decodedRedirectUri = URLDecoder.decode(redirectUri, StandardCharsets.UTF_8.toString());
-        String url = String.format("%s?code=1234&state=%s&redirect_uri=%s", decodedRedirectUri, state, decodedRedirectUri);
-
-        return Response.seeOther(URI.create(url)).build();
-    }
 }
