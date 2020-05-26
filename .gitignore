@@ -53,3 +53,9 @@ com_crashlytics_export_strings.xml
 
 # Maven Shade
 dependency-reduced-pom.xml
+
+### VSCode ###
+.vscode/
+.classpath
+.project
+.settings
