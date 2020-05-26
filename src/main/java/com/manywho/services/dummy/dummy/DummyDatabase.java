@@ -22,8 +22,7 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
     }
 
     @Override
-    public Dummy find(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, String id) {
-        
+    public Dummy find(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, String id) {   
         return DUMMIES.get(id);
     }
 
