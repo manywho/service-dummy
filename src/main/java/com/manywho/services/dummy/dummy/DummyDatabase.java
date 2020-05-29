@@ -3,6 +3,7 @@ package com.manywho.services.dummy.dummy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import com.manywho.sdk.api.draw.content.Command;
 import com.manywho.sdk.api.run.elements.type.ListFilter;
@@ -28,19 +29,24 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
 
     @Override
     public List<Dummy> findAll(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, ListFilter filter, List<MObject> objects) {
-        return new ArrayList<Dummy>(DUMMIES.values());
+        ArrayList<Dummy> dummies = new ArrayList<Dummy>(DUMMIES.values());
+        return dummies;
     }
 
     @Override
     public Dummy create(ApplicationConfiguration applicationConfiguration, ObjectDataType objectDataType, Dummy dummy) {
+        dummy.setId(UUID.randomUUID().toString());
         DUMMIES.put(dummy.getId(), dummy);
+        
         return dummy;
     }
 
     @Override
     public List<Dummy> create(ApplicationConfiguration applicationConfiguration, ObjectDataType objectDataType, List<Dummy> list) {
+        list.forEach(dummy -> {
+            dummy.setId(UUID.randomUUID().toString());
+            DUMMIES.put(dummy.getId(), dummy);});
         
-        list.forEach(d -> DUMMIES.put(d.getId(), d));
         return new ArrayList<Dummy>(DUMMIES.values());
     }
 
@@ -57,6 +63,7 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
     @Override
     public Dummy update(ApplicationConfiguration applicationConfiguration, ObjectDataType objectDataType, Dummy dummy) {
         DUMMIES.put(dummy.getId(), dummy);
+        
         return dummy;
     }
 
