@@ -17,4 +17,11 @@ public class ApplicationConfiguration implements Configuration {
 
     @Configuration.Setting(name = "Port", contentType = ContentType.Number, required = false)
     private int port;
+
+    @Configuration.Setting(name = "Authorization Type", contentType = ContentType.String, required = false)
+    private String authorizationType;
+
+    public String getAuthorizationType() {
+        return authorizationType;
+    }
 }
