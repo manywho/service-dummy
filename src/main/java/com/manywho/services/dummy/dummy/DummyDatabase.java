@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.manywho.sdk.api.draw.content.Command;
 import com.manywho.sdk.api.run.elements.type.ListFilter;
@@ -14,12 +15,11 @@ import com.manywho.services.dummy.ApplicationConfiguration;
 
 public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> {
     
-    private static final HashMap<String, Dummy> DUMMIES = new HashMap<String, Dummy>();
+    private static HashMap<String, Dummy> DUMMIES;
     
     static
     {
-        DUMMIES.put("123", new Dummy("123", "Jonjo", 23));
-        DUMMIES.put("345", new Dummy("345", "Dom", 39));
+        DUMMIES = DummyDatabaseDataBuilder.BuildDummies();
     }
 
     @Override
@@ -29,8 +29,15 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
 
     @Override
     public List<Dummy> findAll(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, ListFilter filter, List<MObject> objects) {
-        ArrayList<Dummy> dummies = new ArrayList<Dummy>(DUMMIES.values());
-        return dummies;
+        
+        List<Dummy> pagedDummies = DUMMIES
+            .values()
+            .stream()
+            .skip(filter.getOffset())
+            .limit(filter.getLimit())
+            .collect(Collectors.toList());
+            
+        return pagedDummies;
     }
 
     @Override
