@@ -1,6 +1,10 @@
 package com.manywho.services.dummy.dummy;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
 import com.manywho.sdk.api.draw.content.Command;
 import com.manywho.sdk.api.run.elements.type.ListFilter;
 import com.manywho.sdk.api.run.elements.type.MObject;
@@ -8,33 +12,42 @@ import com.manywho.sdk.api.run.elements.type.ObjectDataType;
 import com.manywho.sdk.services.database.Database;
 import com.manywho.services.dummy.ApplicationConfiguration;
 
-import java.util.List;
-
 public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> {
+    
+    private static final HashMap<String, Dummy> DUMMIES = new HashMap<String, Dummy>();
+    
+    static
+    {
+        DUMMIES.put("123", new Dummy("123", "Jonjo", 23));
+        DUMMIES.put("345", new Dummy("345", "Dom", 39));
+    }
+
     @Override
-    public Dummy find(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, String id) {
-        return new Dummy("123", "Jonjo", 23);
+    public Dummy find(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, String id) {   
+        return DUMMIES.get(id);
     }
 
     @Override
     public List<Dummy> findAll(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, ListFilter filter, List<MObject> objects) {
-        return Lists.newArrayList(
-                new Dummy("123", "Jonjo", 23),
-                new Dummy("456", "Jonjo", 23)
-        );
+        ArrayList<Dummy> dummies = new ArrayList<Dummy>(DUMMIES.values());
+        return dummies;
     }
 
     @Override
     public Dummy create(ApplicationConfiguration applicationConfiguration, ObjectDataType objectDataType, Dummy dummy) {
-        return null;
+        dummy.setId(UUID.randomUUID().toString());
+        DUMMIES.put(dummy.getId(), dummy);
+        
+        return dummy;
     }
 
     @Override
     public List<Dummy> create(ApplicationConfiguration applicationConfiguration, ObjectDataType objectDataType, List<Dummy> list) {
-        return Lists.newArrayList(
-                new Dummy("123", "Jonjo", 23),
-                new Dummy("456", "Jonjo", 23)
-        );
+        list.forEach(dummy -> {
+            dummy.setId(UUID.randomUUID().toString());
+            DUMMIES.put(dummy.getId(), dummy);});
+        
+        return new ArrayList<Dummy>(DUMMIES.values());
     }
 
     @Override
@@ -49,7 +62,9 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
 
     @Override
     public Dummy update(ApplicationConfiguration applicationConfiguration, ObjectDataType objectDataType, Dummy dummy) {
-        return null;
+        DUMMIES.put(dummy.getId(), dummy);
+        
+        return dummy;
     }
 
     @Override
