@@ -95,7 +95,7 @@ public class IdentityController extends AbstractIdentityController {
         authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.Authenticated);
         authenticatedWhoResult.setTenantName("Tenant 1");
         authenticatedWhoResult.setToken("user1token");
-        authenticatedWhoResult.setUserId( UUID.randomUUID().toString());
+        authenticatedWhoResult.setUserId("user1");
         authenticatedWhoResult.setUsername("user1");
 
         return authenticatedWhoResult;
