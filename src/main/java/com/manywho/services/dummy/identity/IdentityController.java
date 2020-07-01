@@ -66,15 +66,7 @@ public class IdentityController extends AbstractIdentityController {
         AuthenticatedWhoResult authenticatedWhoResult = new AuthenticatedWhoResult();
         ApplicationConfiguration configuration = configurationParser.from(authenticationCredentials);
 
-        if(authenticationCredentials.getSessionToken()!= null &&
-                authenticationCredentials.getSessionToken().equals("12345")) {
-            authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.Authenticated);
-        } else if(authenticationCredentials.getSessionToken()!= null &&
-                authenticationCredentials.getSessionToken().equals("12345") == false) {
-            authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.AccessDenied);
-
-            return authenticatedWhoResult;
-        } else if ("SAML".equalsIgnoreCase(configuration.getAuthorizationType()) &&
+        if ("SAML".equalsIgnoreCase(configuration.getAuthorizationType()) &&
                 "123456".equals(authenticationCredentials.getCode()) == false) {
             throw new RuntimeException("SAML assertion not valid");
         } else if ("USERNAME_PASSWORD".equalsIgnoreCase(configuration.getAuthorizationType()) &&
