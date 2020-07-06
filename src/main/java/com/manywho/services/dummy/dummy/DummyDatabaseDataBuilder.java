@@ -11,10 +11,10 @@ public class DummyDatabaseDataBuilder {
         HashMap<String, Dummy> dummies = new HashMap<String, Dummy>();
         
         String firstNames[] = new String[] { 
-            "Iain", "Xiao", "Jose", "Dale", "James", "Josh", "Mark", "Dominic", "Ben", "Thomas", "Dalibor", "Ian", "Richard", "Calvin", "Jonjo", "Philippa" };
+            "Iain", "Xiao", "Jose", "Dale", "James", "Josh", "Mark", "Dominic", "Ben", "Thomas", "Dalibor", "Ian", "Richard", "Calvin", "Jonjo", "Philippa", "Dave", "John", "Alex", "Ash", "Stephen", "Jake", "Ryan", "Anthony", "Henry", "Harold", "Benjamin", "Roland", "Corky", "Dennis", "Will", "Matt"};
 
         String surnames[] = new String[] { 
-            "Earl", "Shi", "Collazzi", "Shoulders", "Bratt", "Catling", "Sellings", "Holmes", "Fullalove", "Allthalove", "Nenadic", "Haycox", "Timmis", "Robbins", "McKay", "Carnelley" };
+            "Earl", "Shi", "Collazzi", "Shoulders", "Bratt", "Catling", "Sellings", "Holmes", "Fullalove", "Allthalove", "Nenadic", "Haycox", "Timmis", "Robbins", "McKay", "Carnelley", "Smith", "Sanderson", "Henlo", "Wilkinson", "Saint", "Jackson", "Anderson", "James", "Hill", "Dickinson", "Trent", "Williamson", "Borne", "Boa", "Chance", "Weller", "Jones"};
 
         for (int offset = 0; offset < surnames.length; offset++){
 
@@ -27,7 +27,8 @@ public class DummyDatabaseDataBuilder {
                 Calendar cal = Calendar.getInstance();
                 cal.setTimeInMillis(offset*1000);
                 Date hired = cal.getTime();
-                dummies.put(id, new Dummy(id, firstName + " " + surname, age, hired));
+                Boolean remote = offset > 5;
+                dummies.put(id, new Dummy(id, firstName + " " + surname, age, hired, "<p>Hi, my name is " + firstName + "</p>", remote));
             }
         }
 

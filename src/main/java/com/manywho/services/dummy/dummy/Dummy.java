@@ -19,13 +19,21 @@ public class Dummy implements Type {
     @Type.Property(name = "Hired", contentType = ContentType.DateTime)
     private Date hired;
 
+    @Type.Property(name = "Bio", contentType = ContentType.Content)
+    private String bio;
+
+    @Type.Property(name = "Remote", contentType = ContentType.Boolean)
+    private Boolean remote;
+
     public Dummy() {}
 
-    public Dummy(String id, String name, int age, Date birthDate) {
+    public Dummy(String id, String name, int age, Date hired, String bio, boolean remote) {
         this.id = id;
         this.name = name;
         this.age = age;
-        this.hired = birthDate;
+        this.hired = hired;
+        this.bio = bio;
+        this.remote = remote;
     }
 
     public String getId() {
@@ -44,7 +52,15 @@ public class Dummy implements Type {
         return age;
     }
 
-    public Date hired() {
+    public Date getHired() {
         return hired;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public boolean getRemote() {
+        return remote;
     }
 }
