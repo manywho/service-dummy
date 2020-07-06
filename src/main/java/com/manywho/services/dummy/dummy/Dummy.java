@@ -1,5 +1,7 @@
 package com.manywho.services.dummy.dummy;
 
+import java.util.Date;
+
 import com.manywho.sdk.api.ContentType;
 import com.manywho.sdk.services.types.Type;
 
@@ -14,12 +16,16 @@ public class Dummy implements Type {
     @Type.Property(name = "Age", contentType = ContentType.Number)
     private int age;
 
+    @Type.Property(name = "Hired", contentType = ContentType.DateTime)
+    private Date hired;
+
     public Dummy() {}
 
-    public Dummy(String id, String name, int age) {
+    public Dummy(String id, String name, int age, Date birthDate) {
         this.id = id;
         this.name = name;
         this.age = age;
+        this.hired = birthDate;
     }
 
     public String getId() {
@@ -36,5 +42,9 @@ public class Dummy implements Type {
 
     public int getAge() {
         return age;
+    }
+
+    public Date hired() {
+        return hired;
     }
 }

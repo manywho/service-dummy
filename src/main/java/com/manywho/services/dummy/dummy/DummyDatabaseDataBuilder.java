@@ -1,5 +1,7 @@
 package com.manywho.services.dummy.dummy;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 public class DummyDatabaseDataBuilder {
@@ -22,8 +24,10 @@ public class DummyDatabaseDataBuilder {
                 int surnameIndex = offset < surnames.length ? offset : (offset - surnames.length);
                 String surname = surnames[surnameIndex];
                 int age = firstName.length() + surname.length() * 3;
-                
-                dummies.put(id, new Dummy(id, firstName + " " + surname, age));
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(offset*1000);
+                Date hired = cal.getTime();
+                dummies.put(id, new Dummy(id, firstName + " " + surname, age, hired));
             }
         }
 
