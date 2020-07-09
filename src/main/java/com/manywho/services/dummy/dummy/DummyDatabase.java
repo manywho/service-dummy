@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.manywho.sdk.api.draw.content.Command;
 import com.manywho.sdk.api.run.elements.type.ListFilter;
@@ -30,14 +31,16 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
     @Override
     public List<Dummy> findAll(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, ListFilter filter, List<MObject> objects) {
         
-        List<Dummy> pagedDummies = DUMMIES
+        Stream<Dummy> pagedDummies = DUMMIES
             .values()
             .stream()
-            .skip(filter.getOffset())
-            .limit(filter.getLimit())
-            .collect(Collectors.toList());
-            
-        return pagedDummies;
+            .skip(filter.getOffset());
+        
+        if(filter.getLimit() > 0){
+            pagedDummies = pagedDummies.limit(filter.getLimit());
+        }
+
+        return pagedDummies.collect(Collectors.toList());
     }
 
     @Override
