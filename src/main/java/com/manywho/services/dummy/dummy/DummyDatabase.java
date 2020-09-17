@@ -1,9 +1,7 @@
 package com.manywho.services.dummy.dummy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,29 +13,48 @@ import com.manywho.sdk.services.database.Database;
 import com.manywho.services.dummy.ApplicationConfiguration;
 
 public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> {
-    
+
     private static HashMap<String, Dummy> DUMMIES;
-    
+
     static
     {
         DUMMIES = DummyDatabaseDataBuilder.BuildDummies();
     }
 
     @Override
-    public Dummy find(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, String id) {   
+    public Dummy find(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, String id) {
         return DUMMIES.get(id);
     }
 
     @Override
     public List<Dummy> findAll(ApplicationConfiguration configuration, ObjectDataType objectDataType, Command command, ListFilter filter, List<MObject> objects) {
-        
+
         Stream<Dummy> pagedDummies = DUMMIES
-            .values()
-            .stream()
-            .skip(filter.getOffset());
-        
-        if(filter.getLimit() > 0){
-            pagedDummies = pagedDummies.limit(filter.getLimit());
+                .values()
+                .stream()
+                .skip(filter.getOffset());
+
+        String filterColumn = filter.getWhere().get(0).getColumnName();
+        if (filter.getLimit() > 0) {
+            pagedDummies = pagedDummies
+                    .filter(c ->
+                    {
+                        if (filterColumn.equals("Id")) {
+                            return c.getId().equals(filter.getWhere().get(0).getContentValue());
+                        } else if (filterColumn.equals("Name")) {
+                            return c.getName().equals(filter.getWhere().get(0).getContentValue());
+                        } else if (filterColumn.equals("Age")) {
+                            return String.valueOf(c.getAge()).equals(filter.getWhere().get(0).getContentValue());
+                        } else if (filterColumn.equals("Bio")) {
+                            return c.getBio().equals(filter.getWhere().get(0).getContentValue());
+                        } else if (filterColumn.equals("Remote")) {
+                            return String.valueOf(c.getRemote()).equals(filter.getWhere().get(0).getContentValue());
+                        } else {
+                            System.out.println("Invalid filter columnName " + filterColumn);
+                            return false;
+                        }
+                    })
+                    .limit(filter.getLimit());
         }
 
         return pagedDummies.collect(Collectors.toList());
@@ -47,7 +64,7 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
     public Dummy create(ApplicationConfiguration applicationConfiguration, ObjectDataType objectDataType, Dummy dummy) {
         dummy.setId(UUID.randomUUID().toString());
         DUMMIES.put(dummy.getId(), dummy);
-        
+
         return dummy;
     }
 
@@ -56,7 +73,7 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
         list.forEach(dummy -> {
             dummy.setId(UUID.randomUUID().toString());
             DUMMIES.put(dummy.getId(), dummy);});
-        
+
         return new ArrayList<Dummy>(DUMMIES.values());
     }
 
@@ -73,7 +90,7 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
     @Override
     public Dummy update(ApplicationConfiguration applicationConfiguration, ObjectDataType objectDataType, Dummy dummy) {
         DUMMIES.put(dummy.getId(), dummy);
-        
+
         return dummy;
     }
 
