@@ -34,26 +34,32 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
                 .stream()
                 .skip(filter.getOffset());
 
-        String filterColumn = filter.getWhere().get(0).getColumnName();
-        if (filter.getLimit() > 0) {
+        if (filter.getWhere().size()!=0 ){
+            String filterColumn = filter.getWhere().get(0).getColumnName();
+            if ( filter.getLimit() > 0 ) {
+                pagedDummies = pagedDummies
+                        .filter(c ->
+                        {
+                            if (filterColumn.equals("Id")) {
+                                return c.getId().equals(filter.getWhere().get(0).getContentValue());
+                            } else if (filterColumn.equals("Name")) {
+                                return c.getName().equals(filter.getWhere().get(0).getContentValue());
+                            } else if (filterColumn.equals("Age")) {
+                                return String.valueOf(c.getAge()).equals(filter.getWhere().get(0).getContentValue());
+                            } else if (filterColumn.equals("Bio")) {
+                                return c.getBio().equals(filter.getWhere().get(0).getContentValue());
+                            } else if (filterColumn.equals("Remote")) {
+                                return String.valueOf(c.getRemote()).equals(filter.getWhere().get(0).getContentValue());
+                            } else {
+                                System.out.println("Invalid filter columnName " + filterColumn);
+                                return false;
+                            }
+                        })
+                        .limit(filter.getLimit());
+            }
+        }
+        else {
             pagedDummies = pagedDummies
-                    .filter(c ->
-                    {
-                        if (filterColumn.equals("Id")) {
-                            return c.getId().equals(filter.getWhere().get(0).getContentValue());
-                        } else if (filterColumn.equals("Name")) {
-                            return c.getName().equals(filter.getWhere().get(0).getContentValue());
-                        } else if (filterColumn.equals("Age")) {
-                            return String.valueOf(c.getAge()).equals(filter.getWhere().get(0).getContentValue());
-                        } else if (filterColumn.equals("Bio")) {
-                            return c.getBio().equals(filter.getWhere().get(0).getContentValue());
-                        } else if (filterColumn.equals("Remote")) {
-                            return String.valueOf(c.getRemote()).equals(filter.getWhere().get(0).getContentValue());
-                        } else {
-                            System.out.println("Invalid filter columnName " + filterColumn);
-                            return false;
-                        }
-                    })
                     .limit(filter.getLimit());
         }
 
