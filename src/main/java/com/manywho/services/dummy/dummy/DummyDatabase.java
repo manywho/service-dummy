@@ -64,6 +64,8 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
             return c.getBio().equals(filter.getWhere().get(0).getContentValue());
         } else if (filterColumn.equals("Remote")) {
             return String.valueOf(c.getRemote()).equals(filter.getWhere().get(0).getContentValue());
+        } else if (filterColumn.equals("Hired")) {
+            return String.valueOf(c.getHired()).equals(filter.getWhere().get(0).getContentValue());
         } else {
             System.out.println("Invalid filter columnName " + filterColumn);
             return false;
