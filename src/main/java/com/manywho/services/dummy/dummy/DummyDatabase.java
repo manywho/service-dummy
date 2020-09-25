@@ -43,8 +43,8 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
                             }
                             String sortColumn = filter.getOrderByPropertyDeveloperName();
                             return (filter.getOrderByDirectionType().toString() == "ASC") ?
-                                    propertyComparation(sortColumn, dummy2, dummy1) :
-                                    propertyComparation(sortColumn, dummy1, dummy2);
+                                    propertyComparation(sortColumn, dummy1, dummy2) :
+                                    propertyComparation(sortColumn, dummy2, dummy1);
                         }
                 )
                 .skip(filter.getOffset())
@@ -77,17 +77,17 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
 
     private int propertyComparation(String propertyName, Dummy a, Dummy b) {
         if (propertyName.equals("Id")) {
-            return b.getId().compareTo(a.getId());
+            return a.getId().compareTo(b.getId());
         } else if (propertyName.equals("Name")) {
-            return b.getName().compareTo(a.getName());
+            return a.getName().compareTo(b.getName());
         } else if (propertyName.equals("Age")) {
-            return b.getAge() - a.getAge();
+            return a.getAge() - b.getAge();
         } else if (propertyName.equals("Bio")) {
-            return b.getBio().compareTo(a.getBio());
+            return a.getBio().compareTo(b.getBio());
         } else if (propertyName.equals("Remote")) {
-            return Boolean.compare(b.getRemote(), a.getRemote());
+            return Boolean.compare(a.getRemote(), b.getRemote());
         } else if (propertyName.equals("Hired")) {
-            return b.getHired().compareTo(a.getHired());
+            return a.getHired().compareTo(b.getHired());
         } else {
             System.out.println("Invalid orderType name " + propertyName);
             return 0;
