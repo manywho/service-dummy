@@ -1,9 +1,7 @@
 package com.manywho.services.dummy.dummy;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.manywho.sdk.api.draw.content.Command;
 import com.manywho.sdk.api.run.elements.type.ListFilter;
@@ -30,22 +28,23 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
         return DUMMIES
                 .values()
                 .stream()
-                .filter(c ->
+                .filter(dummyInput ->
                 {
                     if (filter == null || filter.getWhere() == null || filter.getWhere().size() == 0) {
                         return true;
+                    } else if (filter.getWhere().size() > 1) {
+                        System.out.println("Only one filter element is supported. " + filter.getWhere().size() + " has been provided.");
                     }
-                    String filterColumn = filter.getWhere().get(0).getColumnName();
-                    return filterByColumnName(filter, c, filterColumn);
+                    return filterByColumnName(filter, dummyInput);
                 })
-                .sorted((a, b) -> {
+                .sorted((dummy1, dummy2) -> {
                             if (filter == null || filter.getOrderByDirectionType() == null) {
                                 return 1;
                             }
                             String sortColumn = filter.getOrderByPropertyDeveloperName();
-                            return (filter.getOrderByDirectionType().toString() == "DESC") ?
-                                    propertyComparation(sortColumn, a, b) :
-                                    propertyComparation(sortColumn, b, a);
+                            return (filter.getOrderByDirectionType().toString() == "ASC") ?
+                                    propertyComparation(sortColumn, dummy2, dummy1) :
+                                    propertyComparation(sortColumn, dummy1, dummy2);
                         }
                 )
                 .skip(filter.getOffset())
@@ -53,22 +52,26 @@ public class DummyDatabase implements Database<ApplicationConfiguration, Dummy> 
                 .collect(Collectors.toList());
     }
 
-    private boolean filterByColumnName(ListFilter filter, Dummy c, String filterColumn) {
-        if (filterColumn.equals("Id")) {
-            return c.getId().equals(filter.getWhere().get(0).getContentValue());
-        } else if (filterColumn.equals("Name")) {
-            return c.getName().equals(filter.getWhere().get(0).getContentValue());
-        } else if (filterColumn.equals("Age")) {
-            return String.valueOf(c.getAge()).equals(filter.getWhere().get(0).getContentValue());
-        } else if (filterColumn.equals("Bio")) {
-            return c.getBio().equals(filter.getWhere().get(0).getContentValue());
-        } else if (filterColumn.equals("Remote")) {
-            return String.valueOf(c.getRemote()).equals(filter.getWhere().get(0).getContentValue());
-        } else if (filterColumn.equals("Hired")) {
-            return String.valueOf(c.getHired()).equals(filter.getWhere().get(0).getContentValue());
+    private boolean filterByColumnName(ListFilter filter, Dummy c) {
+        if (filter != null && filter.getWhere() != null && filter.getWhere().size() != 0) {
+            if (filter.getWhere().get(0).getColumnName().equals("Id")) {
+                return c.getId().equals(filter.getWhere().get(0).getContentValue());
+            } else if (filter.getWhere().get(0).getColumnName().equals("Name")) {
+                return c.getName().equals(filter.getWhere().get(0).getContentValue());
+            } else if (filter.getWhere().get(0).getColumnName().equals("Age")) {
+                return String.valueOf(c.getAge()).equals(filter.getWhere().get(0).getContentValue());
+            } else if (filter.getWhere().get(0).getColumnName().equals("Bio")) {
+                return c.getBio().equals(filter.getWhere().get(0).getContentValue());
+            } else if (filter.getWhere().get(0).getColumnName().equals("Remote")) {
+                return String.valueOf(c.getRemote()).equals(filter.getWhere().get(0).getContentValue());
+            } else if (filter.getWhere().get(0).getColumnName().equals("Hired")) {
+                return String.valueOf(c.getHired()).equals(filter.getWhere().get(0).getContentValue());
+            } else {
+                System.out.println("Invalid filter columnName " + filter.getWhere().get(0).getColumnName());
+                return false;
+            }
         } else {
-            System.out.println("Invalid filter columnName " + filterColumn);
-            return false;
+            return true;
         }
     }
 
