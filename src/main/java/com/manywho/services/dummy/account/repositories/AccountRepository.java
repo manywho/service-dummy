@@ -1,7 +1,7 @@
-package com.manywho.services.dummy.repositories;
+package com.manywho.services.dummy.account.repositories;
 
 import com.manywho.sdk.api.run.elements.type.ListFilter;
-import com.manywho.services.dummy.dummy.Account;
+import com.manywho.services.dummy.account.Account;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
@@ -59,7 +59,7 @@ public class AccountRepository {
                     .executeUpdate()
                     .getResult();
 
-            account.setId("" + newAccountId);
+            account.setId(String.valueOf(newAccountId));
         }
 
         return account;

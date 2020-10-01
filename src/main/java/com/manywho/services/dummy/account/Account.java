@@ -1,4 +1,4 @@
-package com.manywho.services.dummy.dummy;
+package com.manywho.services.dummy.account;
 
 
 import com.manywho.sdk.api.ContentType;

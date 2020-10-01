@@ -1,4 +1,4 @@
-package com.manywho.services.dummy.dummy;
+package com.manywho.services.dummy.account;
 
 import com.manywho.sdk.api.draw.content.Command;
 import com.manywho.sdk.api.run.elements.type.ListFilter;
@@ -6,7 +6,7 @@ import com.manywho.sdk.api.run.elements.type.MObject;
 import com.manywho.sdk.api.run.elements.type.ObjectDataType;
 import com.manywho.sdk.services.database.Database;
 import com.manywho.services.dummy.ApplicationConfiguration;
-import com.manywho.services.dummy.repositories.AccountRepository;
+import com.manywho.services.dummy.account.repositories.AccountRepository;
 
 import javax.inject.Inject;
 import java.util.List;
