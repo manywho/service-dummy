@@ -54,6 +54,16 @@
             <artifactId>logstash-logback-encoder</artifactId>
             <version>6.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.sql2o</groupId>
+            <artifactId>sql2o</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.8.11.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -80,11 +90,11 @@
                         <configuration>
                             <transformers>
                                 <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.manywho.services.dummy.Application</mainClass>
                                 </transformer>
                                 <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>
