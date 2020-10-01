@@ -8,6 +8,7 @@ import com.manywho.sdk.api.run.elements.type.ObjectDataType;
 import com.manywho.sdk.api.run.elements.type.Property;
 import com.manywho.sdk.services.database.RawDatabase;
 import com.manywho.services.dummy.ApplicationConfiguration;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +27,7 @@ public class DummyRawDatabase implements RawDatabase<ApplicationConfiguration> {
         boolean filterByObjects = filteringByObjects(objects, listFilter);
 
         if (objectDataType.getDeveloperName().equals("hn-binding")) {
-            if (filterByObjects == false ) {
+            if (filterByObjects == false) {
                 // it returns all the objects
                 mObjects.add(createHackerNewsHeadlines());
             } else if (containsOneOfOurCurrentHeadlines(objects, "How (not) to sign a JSON object")) {
@@ -131,7 +132,7 @@ public class DummyRawDatabase implements RawDatabase<ApplicationConfiguration> {
         Property propertyLinkedArticlesBBC = new Property("linked-articles", Arrays.asList(linkedArticle));
 
 
-        return new MObject("bbc-binding", "bbc-1" , Arrays.asList(propertyTitleBBC, author, propertyLinkedArticlesBBC));
+        return new MObject("bbc-binding", "bbc-1", Arrays.asList(propertyTitleBBC, author, propertyLinkedArticlesBBC));
     }
 
     private MObject createBBCHeadlines2() {
@@ -139,7 +140,7 @@ public class DummyRawDatabase implements RawDatabase<ApplicationConfiguration> {
         Property propertkyLinkedArticles = new Property("linked-articles", new ArrayList());
         Property propertyAuthorArticle = new Property("author", createAuthorFromSpreadsheet("John", 1));
 
-        return new MObject("bbc-binding", "bbc-2",  Arrays.asList(propertyTitle, propertkyLinkedArticles, propertyAuthorArticle));
+        return new MObject("bbc-binding", "bbc-2", Arrays.asList(propertyTitle, propertkyLinkedArticles, propertyAuthorArticle));
     }
 
     private MObject createAuthorWithDefaultBinding(String name) {
@@ -164,4 +165,3 @@ public class DummyRawDatabase implements RawDatabase<ApplicationConfiguration> {
         return author;
     }
 }
-
