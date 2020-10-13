@@ -16,8 +16,8 @@ public class AccountRepository {
         this.sql2o = sql2o;
     }
 
-    public Account find(String id) {
-        String sql = "SELECT * FROM account WHERE id = :id";
+    public Account find(String id ) {
+        String sql = "SELECT * FROM account WHERE id = :id where stateid = :stateid";
 
         try (Connection connection = sql2o.open()) {
             return connection.createQuery(sql)
@@ -36,26 +36,27 @@ public class AccountRepository {
     }
 
     public Account update(Account account) {
-        String sql = "UPDATE account SET name = :name, company = :company WHERE id = :id";
+        String sql = "UPDATE account SET name = :name, company = :company, stateid = :stateid WHERE id = :id and stateid = :stateid ";
 
         try (Connection connection = sql2o.open()) {
             connection.createQuery(sql)
                     .addParameter("id", account.getId())
                     .addParameter("name", account.getName())
                     .addParameter("company", account.getCompany())
+                    .addParameter("stateid", account.getStateid())
                     .executeUpdate();
         }
-
         return account;
     }
 
     public Account create(Account account) {
-        String sql = "INSERT INTO account (id, name, company) VALUES (:id, :name, :company)";
+        String sql = "INSERT INTO account (id, name, company, stateid) VALUES (:id, :name, :company, :stateid)";
 
         try (Connection connection = sql2o.open()) {
             int newAccountId = connection.createQuery(sql)
                     .addParameter("name", account.getName())
                     .addParameter("company", account.getCompany())
+                    .addParameter("stateid", account.getStateid())
                     .executeUpdate()
                     .getResult();
 
@@ -65,8 +66,8 @@ public class AccountRepository {
         return account;
     }
 
-    public void delete(String id) {
-        String sql = "DELETE FROM account WHERE id = :id";
+    public void delete(String id ) {
+        String sql = "DELETE FROM account WHERE id = :id and stateid = :stateid";
 
         try (Connection connection = sql2o.open()) {
             connection.createQuery(sql)

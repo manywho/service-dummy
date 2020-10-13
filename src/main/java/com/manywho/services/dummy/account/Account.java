@@ -17,6 +17,10 @@ public class Account implements Type {
     @Type.Property(name = "company", contentType = ContentType.String)
     private String company;
 
+    @Type.Property(name = "stateid", contentType = ContentType.String)
+    private String stateid;
+
+
     public String getId() {
         return id;
     }
@@ -39,5 +43,13 @@ public class Account implements Type {
 
     public void setCompany(String company) {
         this.company = company;
+    }
+
+    public String getStateid() {
+        return stateid;
+    }
+
+    public void setStateid(String stateid) {
+        this.stateid = stateid;
     }
 }
