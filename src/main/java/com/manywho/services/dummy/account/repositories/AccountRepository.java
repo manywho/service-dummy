@@ -17,7 +17,7 @@ public class AccountRepository {
     }
 
     public Account find(String id ) {
-        String sql = "SELECT * FROM account WHERE id = :id where stateid = :stateid";
+        String sql = "SELECT * FROM account WHERE id = :id";
 
         try (Connection connection = sql2o.open()) {
             return connection.createQuery(sql)
@@ -36,7 +36,7 @@ public class AccountRepository {
     }
 
     public Account update(Account account) {
-        String sql = "UPDATE account SET name = :name, company = :company, stateid = :stateid WHERE id = :id and stateid = :stateid ";
+        String sql = "UPDATE account SET name = :name, company = :company, stateid = :stateid WHERE id = :id";
 
         try (Connection connection = sql2o.open()) {
             connection.createQuery(sql)
@@ -67,7 +67,7 @@ public class AccountRepository {
     }
 
     public void delete(String id ) {
-        String sql = "DELETE FROM account WHERE id = :id and stateid = :stateid";
+        String sql = "DELETE FROM account WHERE id = :id";
 
         try (Connection connection = sql2o.open()) {
             connection.createQuery(sql)
