@@ -1,5 +1,6 @@
 package com.manywho.services.dummy.account.repositories;
 
+import com.manywho.sdk.api.CriteriaType;
 import com.manywho.sdk.api.run.elements.type.ListFilter;
 import com.manywho.services.dummy.account.Account;
 import org.sql2o.Connection;
@@ -16,9 +17,8 @@ public class AccountRepository {
         this.sql2o = sql2o;
     }
 
-    public Account find(String id ) {
+    public Account find(String id) {
         String sql = "SELECT * FROM account WHERE id = :id";
-
         try (Connection connection = sql2o.open()) {
             return connection.createQuery(sql)
                     .addParameter("id", id)
@@ -26,14 +26,70 @@ public class AccountRepository {
         }
     }
 
-    public List<Account> findAll(ListFilter filter) {
-        String sql = "SELECT * FROM account";
-
+    public Account findAll(String filterBy, String value) {
+        String sql = "SELECT * FROM account WHERE " + filterBy + "= :" + value;
         try (Connection connection = sql2o.open()) {
             return connection.createQuery(sql)
-                    .executeAndFetch(Account.class);
+                    .addParameter(filterBy, filterBy)
+                    .executeAndFetchFirst(Account.class);
         }
     }
+
+    public List<Account> findAll(ListFilter filter) {
+
+        String sql = "";
+        if (filter != null && filter.getWhere() != null && filter.getWhere().size() != 0) {
+            String columnname = filter.getWhere().get(0).getColumnName();
+            String value = filter.getWhere().get(0).getContentValue();
+            CriteriaType criteriaType = filter.getWhere().get(0).getCriteriaType();
+
+            if (columnname.equals("id")) {
+
+                if (criteriaType == CriteriaType.GreaterThan) {
+                    sql = "SELECT * FROM account WHERE id > " + value;
+                } else if (criteriaType == CriteriaType.GreaterThanOrEqual) {
+                    sql = "SELECT * FROM account WHERE id >= " + value;
+                } else if (criteriaType == CriteriaType.LessThan) {
+                    sql = "SELECT * FROM account WHERE id < " + value;
+                } else if (criteriaType == CriteriaType.LessThanOrEqual) {
+                    sql = "SELECT * FROM account WHERE id <= " + value;
+                } else if (criteriaType == CriteriaType.Equal) {
+                    sql = "SELECT * FROM account WHERE id == " + value;
+                } else if (criteriaType == CriteriaType.NotEqual) {
+                    sql = "SELECT * FROM account WHERE id != " + value;
+                } else {
+                    System.out.println("Integer type \"id\" only supports EQUAL, NOT_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN and LESS_THAN_OR_EQUAL conditions");
+                }
+            } else if (columnname.equals("company") || columnname.equals("name") || columnname.equals("stateid")) {
+
+                if (criteriaType == CriteriaType.StartsWith) {
+                    sql = "SELECT * FROM account WHERE " + columnname + " LIKE \'" + value + "%\'";
+                } else if (criteriaType == CriteriaType.EndsWith) {
+                    sql = "SELECT * FROM account WHERE " + columnname + " LIKE \'%" + value + "\'";
+                } else if (criteriaType == CriteriaType.IsEmpty) {
+                    sql = "SELECT * FROM account WHERE " + columnname + " is NULL ";
+                } else if (criteriaType == CriteriaType.Contains) {
+                    sql = "SELECT * FROM account WHERE " + columnname + " LIKE \'%" + value + "%\'";
+                } else if (criteriaType == CriteriaType.Equal) {
+                    sql = "SELECT * FROM account WHERE " + columnname + " == \'" + value + "\'";
+                } else if (criteriaType == CriteriaType.NotEqual) {
+                    sql = "SELECT * FROM account WHERE " + columnname + " != \'" + value + "\'";
+                } else {
+                    System.out.println("String CriteriaType only supports EQUAL, NOT_EQUAL, STARTS_WITH, ENDS_WITH, CONTAINS and IS_EMPTY");
+                }
+            } else {
+                sql = "SELECT * FROM account ";
+            }
+
+        }
+
+            try (
+                    Connection connection = sql2o.open()) {
+                return connection.createQuery(sql)
+                        .executeAndFetch(Account.class);
+            }
+        }
+
 
     public Account update(Account account) {
         String sql = "UPDATE account SET name = :name, company = :company, stateid = :stateid WHERE id = :id";
@@ -66,7 +122,7 @@ public class AccountRepository {
         return account;
     }
 
-    public void delete(String id ) {
+    public void delete(String id) {
         String sql = "DELETE FROM account WHERE id = :id";
 
         try (Connection connection = sql2o.open()) {
