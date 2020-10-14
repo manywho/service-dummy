@@ -77,19 +77,17 @@ public class AccountRepository {
                 } else {
                     System.out.println("String CriteriaType only supports EQUAL, NOT_EQUAL, STARTS_WITH, ENDS_WITH, CONTAINS and IS_EMPTY");
                 }
-            } else {
-                sql = "SELECT * FROM account ";
             }
-
+        } else {
+            sql = "SELECT * FROM account ";
         }
 
-            try (
-                    Connection connection = sql2o.open()) {
-                return connection.createQuery(sql)
-                        .executeAndFetch(Account.class);
-            }
+        try (
+                Connection connection = sql2o.open()) {
+            return connection.createQuery(sql)
+                    .executeAndFetch(Account.class);
         }
-
+    }
 
     public Account update(Account account) {
         String sql = "UPDATE account SET name = :name, company = :company, stateid = :stateid WHERE id = :id";
