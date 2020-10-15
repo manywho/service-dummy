@@ -1,6 +1,7 @@
 package com.manywho.services.dummy.account.repositories;
 
 import com.manywho.sdk.api.CriteriaType;
+import com.manywho.sdk.api.run.ServiceProblemException;
 import com.manywho.sdk.api.run.elements.type.ListFilter;
 import com.manywho.services.dummy.account.Account;
 import org.sql2o.Connection;
@@ -35,7 +36,7 @@ public class AccountRepository {
         }
     }
 
-    public List<Account> findAll(ListFilter filter) {
+    public List<Account> findAll(ListFilter filter) throws ServiceProblemException {
 
         String sql = "";
         if (filter != null && filter.getWhere() != null && filter.getWhere().size() != 0) {
@@ -57,8 +58,12 @@ public class AccountRepository {
                     sql = "SELECT * FROM account WHERE id == " + value;
                 } else if (criteriaType == CriteriaType.NotEqual) {
                     sql = "SELECT * FROM account WHERE id != " + value;
+                } else if (criteriaType == CriteriaType.IsEmpty) {
+                    sql = (Boolean.valueOf(filter.getWhere().get(0).getContentValue())) ?
+                            "SELECT * FROM account WHERE id is null" :
+                            "SELECT * FROM account WHERE id is not null";
                 } else {
-                    System.out.println("Integer type \"id\" only supports EQUAL, NOT_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN and LESS_THAN_OR_EQUAL conditions");
+                    throw new ServiceProblemException(400, "Integer type \"id\" only supports EQUAL, NOT_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL and IS_EMPTY operations");
                 }
             } else if (columnname.equals("company") || columnname.equals("name") || columnname.equals("stateid")) {
 
@@ -67,7 +72,9 @@ public class AccountRepository {
                 } else if (criteriaType == CriteriaType.EndsWith) {
                     sql = "SELECT * FROM account WHERE " + columnname + " LIKE \'%" + value + "\'";
                 } else if (criteriaType == CriteriaType.IsEmpty) {
-                    sql = "SELECT * FROM account WHERE " + columnname + " is NULL ";
+                    sql = (Boolean.valueOf(filter.getWhere().get(0).getContentValue())) ?
+                            "SELECT * FROM account WHERE " + columnname + " is null" :
+                            "SELECT * FROM account WHERE " + columnname + " is not null";
                 } else if (criteriaType == CriteriaType.Contains) {
                     sql = "SELECT * FROM account WHERE " + columnname + " LIKE \'%" + value + "%\'";
                 } else if (criteriaType == CriteriaType.Equal) {
@@ -75,7 +82,7 @@ public class AccountRepository {
                 } else if (criteriaType == CriteriaType.NotEqual) {
                     sql = "SELECT * FROM account WHERE " + columnname + " != \'" + value + "\'";
                 } else {
-                    System.out.println("String CriteriaType only supports EQUAL, NOT_EQUAL, STARTS_WITH, ENDS_WITH, CONTAINS and IS_EMPTY");
+                    throw new ServiceProblemException(400, "String CriteriaType only supports EQUAL, NOT_EQUAL, STARTS_WITH, ENDS_WITH, CONTAINS and IS_EMPTY operations.");
                 }
             }
         } else {
