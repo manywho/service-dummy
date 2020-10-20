@@ -50,40 +50,31 @@ public class AccountRepository {
             CriteriaType criteriaType = filter.getWhere().get(0).getCriteriaType();
 
             stringBuilder.append(" WHERE ");
-            stringBuilder.append(columnName);
 
             if (columnName.equals("id")) {
                 switch (criteriaType) {
                     case GreaterThan:
-                        stringBuilder.append(" > ");
-                        stringBuilder.append(value);
+                        stringBuilder.append(String.format("%s > %s", columnName, value));
                         break;
                     case GreaterThanOrEqual:
-                        stringBuilder.append(" >= ");
-                        stringBuilder.append(value);
+                        stringBuilder.append(String.format("%s >= %s", columnName, value));
                         break;
                     case LessThan:
-                        stringBuilder.append(" < ");
-                        stringBuilder.append(value);
+                        stringBuilder.append(String.format("%s < %s", columnName, value));
                         break;
                     case LessThanOrEqual:
-                        stringBuilder.append(" <= ");
-                        stringBuilder.append(value);
+                        stringBuilder.append(String.format("%s <= %s", columnName, value));
                         break;
                     case Equal:
-                        stringBuilder.append(" = ");
-                        stringBuilder.append(value);
+                        stringBuilder.append(String.format("%s = %s", columnName, value));
                         break;
                     case NotEqual:
-                        stringBuilder.append(" != ");
-                        stringBuilder.append(value);
+                        stringBuilder.append(String.format("%s != %s", columnName, value));
                         break;
                     case IsEmpty:
-                        stringBuilder.append(" > ");
-                        stringBuilder.append(value);
                         stringBuilder = (Boolean.valueOf(filter.getWhere().get(0).getContentValue())) ?
-                                stringBuilder.append(" is null ") :
-                                stringBuilder.append(" is not null");
+                                stringBuilder.append(String.format("%s is null ", columnName)) :
+                                stringBuilder.append(String.format("%s is not null", columnName));
                         break;
                     default:
                         throw new ServiceProblemException(400, "Integer CriteriaType only supports EQUAL, NOT_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL and IS_EMPTY operations");
@@ -91,41 +82,29 @@ public class AccountRepository {
             } else if (columnName.equals("company") || columnName.equals("name") || columnName.equals("stateid")) {
                 switch (criteriaType) {
                     case StartsWith:
-                        stringBuilder.append(" LIKE \'");
-                        stringBuilder.append(value);
-                        stringBuilder.append("%\'");
+                        stringBuilder.append(String.format("%s LIKE '%s%%'", columnName, value));
                         break;
 
                     case EndsWith:
-                        stringBuilder.append(" LIKE \'%");
-                        stringBuilder.append(value);
-                        stringBuilder.append("\'");
+                        stringBuilder.append(String.format("%s LIKE '%%%s'", columnName, value));
                         break;
 
                     case IsEmpty:
                         stringBuilder = (Boolean.valueOf(filter.getWhere().get(0).getContentValue())) ?
-                                stringBuilder.append(" is null ") :
-                                stringBuilder.append(" is not null");
+                                stringBuilder.append(String.format("%s is null ", columnName)) :
+                                stringBuilder.append(String.format("%s is not null", columnName));
                         break;
 
                     case Contains:
-                        stringBuilder.append(" LIKE \'%");
-                        stringBuilder.append(value);
-                        stringBuilder.append("%\'");
+                        stringBuilder.append(String.format("%s LIKE '%%%s%%'", columnName, value));
                         break;
 
                     case Equal:
-                        stringBuilder.append(" = \'");
-                        stringBuilder.append(value);
-                        stringBuilder.append("\' ");
-
+                        stringBuilder.append(String.format("%s = '%s'", columnName, value));
                         break;
 
                     case NotEqual:
-                        stringBuilder.append(" != \'");
-                        stringBuilder.append(value);
-                        stringBuilder.append("\'");
-
+                        stringBuilder.append(String.format("%s != '%s'", columnName, value));
                         break;
 
                     default:
