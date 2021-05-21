@@ -8,7 +8,7 @@ import com.manywho.sdk.services.servers.EmbeddedServer;
 import com.manywho.sdk.services.servers.Servlet3Server;
 import com.manywho.sdk.services.servers.undertow.UndertowServer;
 
-@ApplicationPath("api/dummy/1")
+@ApplicationPath("/")
 public class Application extends Servlet3Server {
     public Application(){
         this.addModule(new ApplicationModule());
@@ -29,7 +29,7 @@ public class Application extends Servlet3Server {
 
         if(V2 != null && V2.equalsIgnoreCase("true")) {
             server.start(
-                "",
+                "/api/dummy/1",
                 8081,
                 keystore != null && !keystore.isEmpty() ? new FileInputStream(keystore) : null,
                 truststore != null && !truststore.isEmpty() ? new FileInputStream(truststore) : null,
@@ -37,7 +37,7 @@ public class Application extends Servlet3Server {
                 truststorePassword);
         }
         else{
-            server.start();
+            server.start("/api/dummy/1");
         }
     }
 }
