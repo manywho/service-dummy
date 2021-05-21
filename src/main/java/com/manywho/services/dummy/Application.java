@@ -8,7 +8,7 @@ import com.manywho.sdk.services.servers.EmbeddedServer;
 import com.manywho.sdk.services.servers.Servlet3Server;
 import com.manywho.sdk.services.servers.undertow.UndertowServer;
 
-@ApplicationPath("/")
+@ApplicationPath("api/dummy/1")
 public class Application extends Servlet3Server {
     public Application(){
         this.addModule(new ApplicationModule());
