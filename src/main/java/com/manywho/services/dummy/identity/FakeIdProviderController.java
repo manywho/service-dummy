@@ -6,6 +6,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+
+import jdk.internal.org.jline.utils.Log;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -48,6 +51,8 @@ public class FakeIdProviderController {
     ) throws IOException {
 
         String decodedRedirectUri = URLDecoder.decode(redirectUri, StandardCharsets.UTF_8.toString());
+        
+        Log.info("Response received");
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new MultipartBody.Builder()
@@ -61,6 +66,10 @@ public class FakeIdProviderController {
                 .url(urlSam)
                 .post(requestBody)
                 .build();
+
+        Log.info("About to send request back to " + decodedRedirectUri);
+        Log.info("URL SAML is " + urlSam);
+        Log.info("Request body is " + requestBody);
 
         try (okhttp3.Response response = client.newCall(request).execute()) {
             return Response.seeOther(URI.create(response.request().url().toString())).build();
