@@ -73,7 +73,7 @@ public class FakeIdProviderController {
 
         try (okhttp3.Response response = client.newCall(request).execute()) {
                 Log.info("Flow response is " + response);
-                Log.info("response.request().url() is " + response.request().url());
+                Log.info("response.request().url() is " + response.request().url().toString());
                 return Response.seeOther(URI.create(response.request().url().toString())).build();
         }
     }
