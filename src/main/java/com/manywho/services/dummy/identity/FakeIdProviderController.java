@@ -13,9 +13,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/callback")
 public class FakeIdProviderController {
+        private final static Logger LOGGER = LoggerFactory.getLogger(FakeIdProviderController.class);
+
     @Path("/fake-idp")
     @GET
     public Response fakeOauth2IdProvider(
@@ -52,7 +56,7 @@ public class FakeIdProviderController {
 
         String decodedRedirectUri = URLDecoder.decode(redirectUri, StandardCharsets.UTF_8.toString());
         
-        Log.info("Response received");
+        LOGGER.info("Response received");
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new MultipartBody.Builder()
@@ -67,13 +71,13 @@ public class FakeIdProviderController {
                 .post(requestBody)
                 .build();
 
-        Log.info("About to send request back to " + decodedRedirectUri);
-        Log.info("URL SAML is " + urlSam);
-        Log.info("Request body is " + requestBody);
+        LOGGER.info("About to send request back to " + decodedRedirectUri);
+        LOGGER.info("URL SAML is " + urlSam);
+        LOGGER.info("Request body is " + requestBody);
 
         try (okhttp3.Response response = client.newCall(request).execute()) {
-                Log.info("Flow response is " + response);
-                Log.info("response.request().url() is " + response.request().url().toString());
+                LOGGER.info("Flow response is " + response);
+                LOGGER.info("response.request().url() is " + response.request().url().toString());
                 return Response.seeOther(URI.create(response.request().url().toString())).build();
         }
     }
