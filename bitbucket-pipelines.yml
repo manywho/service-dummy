@@ -1,0 +1,36 @@
+pipelines:
+  default: # Every commit but won't run on master branch as it's defined below
+    - step:
+        name: Build branch image
+        services:
+          - docker
+        caches:
+          - docker
+        script:
+          - IMAGE_TAG=`echo ${BITBUCKET_BRANCH} | sed -e "s/\//-/g"`
+          - docker build -t service-dummy .
+          - pipe: atlassian/aws-ecr-push-image:1.4.2
+            variables:
+              IMAGE_NAME: service-dummy
+              TAGS: ${IMAGE_TAG} ${BITBUCKET_COMMIT}
+  branches:
+    master: # Run only on master
+      - step:
+          name: Build master image
+          services:
+            - docker
+          caches:
+            - docker
+          script:
+            - docker build -t service-dummy .
+            - pipe: atlassian/aws-ecr-push-image:1.4.2
+              variables:
+                IMAGE_NAME: service-dummy
+                TAGS: master latest
+  pull-requests: # Run on only on Pull Request
+    '**': # All branches
+      - step:
+          name: Docker Lint Tests-api
+          image: hadolint/hadolint:latest-debian
+          script:
+            - hadolint Dockerfile
